@@ -7,12 +7,12 @@ using Abby.Web.Data;
 namespace Abby.Web.Pages.Categories
 {
     [BindProperties]
-    public class EditModel : PageModel
+    public class DeleteModel : PageModel
     {
         private readonly ApplicationDbContext _db;
         public Category Category { get; set; }
 
-        public EditModel(ApplicationDbContext db)
+        public DeleteModel(ApplicationDbContext db)
         {
             _db = db;
         }
@@ -27,18 +27,17 @@ namespace Abby.Web.Pages.Categories
 
         public async Task<IActionResult> OnPost()
         {
-            if(Category.Name == Category.DisplayOrder.ToString())
-            {
-                ModelState.AddModelError("Category.Name", "The Displayorder cannot exactly match name");
-            }
-            if (ModelState.IsValid)
-            {
-                _db.Category.Update(Category);
-                await _db.SaveChangesAsync();
-                TempData["success"] = "Category edit successfully";
+            
+                var categoryFrromDb = _db.Category.Find(Category.Id);
+                if(categoryFrromDb != null)
+                {
+                    _db.Category.Remove(categoryFrromDb);
+                    await _db.SaveChangesAsync();
+                TempData["success"] = "Category delete successfully";
                 return RedirectToPage("Index");
             }
-            
+                
+          
             return Page();
         }
 
