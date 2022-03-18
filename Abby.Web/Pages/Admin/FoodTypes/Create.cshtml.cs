@@ -3,18 +3,19 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Abby.DataAccess.Data;
 using Abby.Models;
+using Abby.DataAccess.Repository.IRepository;
 
 namespace Abby.Web.Pages.Admin.FoodTypes
 {
     [BindProperties]
     public class CreateModel : PageModel
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IUnitOfWork _unitOfWork;
         public FoodType FoodType { get; set; }
 
-        public CreateModel(ApplicationDbContext db)
+        public CreateModel(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
 
        
@@ -28,8 +29,8 @@ namespace Abby.Web.Pages.Admin.FoodTypes
            
             if (ModelState.IsValid)
             {
-                await _db.FoodType.AddAsync(FoodType);
-                await _db.SaveChangesAsync();
+                 _unitOfWork.FoodType.Add(FoodType);
+                 _unitOfWork.Save();
                 TempData["success"] = "FoodType create successfully";
                 return RedirectToPage("Index");
             }
