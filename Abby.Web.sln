@@ -5,11 +5,11 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abby.Web", "Abby.Web\Abby.Web.csproj", "{664A6C11-4172-433A-816E-0446C480968E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abby.DataAccess", "Abby.DataAccess\Abby.DataAccess.csproj", "{05D6E442-56FE-4CB7-9158-FAFE609FB35F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abby.DataAccess", "Abby.DataAccess\Abby.DataAccess.csproj", "{05D6E442-56FE-4CB7-9158-FAFE609FB35F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abby.Models", "Abby.Models\Abby.Models.csproj", "{3F1816FD-D786-4B7B-9AE7-1F7BD7BC9EDE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abby.Models", "Abby.Models\Abby.Models.csproj", "{3F1816FD-D786-4B7B-9AE7-1F7BD7BC9EDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abby.Utility", "Abby.Utility\Abby.Utility.csproj", "{2F7F9D22-A5EA-4A45-9E6D-2857EB0E6439}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abby.Utility", "Abby.Utility\Abby.Utility.csproj", "{2F7F9D22-A5EA-4A45-9E6D-2857EB0E6439}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
