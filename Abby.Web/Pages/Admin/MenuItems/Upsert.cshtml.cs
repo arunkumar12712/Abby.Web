@@ -27,8 +27,14 @@ namespace Abby.Web.Pages.Admin.MenuItems
         }
 
        
-        public void OnGet()
+        public void OnGet(int? id)
         {
+            if(id != null)
+            {
+                // edit
+                MenuItem = _unitOfWork.MenuItem.GetFirstOrDefault(u=>u.Id == id);
+            }
+
             CategoryList = _unitOfWork.Category.GetAll().Select(t => new SelectListItem()
             {
                 Text = t.Name,
@@ -57,13 +63,43 @@ namespace Abby.Web.Pages.Admin.MenuItems
                     files[0].CopyTo(fileStream);
                 }; 
 
-                MenuItem.Image = @"\images\menuitems" +filename_new +extension;
+                MenuItem.Image = @"\images\menuitems\" +filename_new +extension;
                 _unitOfWork.MenuItem.Add(MenuItem);
                 _unitOfWork.Save();
             }
             else
             {
-                //update
+                //edit
+                var objFromDb = _unitOfWork.MenuItem.GetFirstOrDefault(u => u.Id == MenuItem.Id);
+                if(files.Count > 0)
+                {
+                    string filename_new = Guid.NewGuid().ToString();
+                    var uploads = Path.Combine(webRootPath, @"images\menuitems");
+                    var extension = Path.GetExtension(files[0].FileName);
+
+                    // delete the old image
+
+                    var oldImagePath = Path.Combine(webRootPath, objFromDb.Image.Trim('\\'));
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+
+                    using (var fileStream = new FileStream(Path.Combine(uploads, filename_new + extension), FileMode.Create))
+                    {
+                        files[0].CopyTo(fileStream);
+                    };
+                    MenuItem.Image = @"\images\menuitems\" + filename_new + extension;
+
+                }
+                else
+                {
+                    MenuItem.Image = objFromDb.Image;
+                }
+                _unitOfWork.MenuItem.Update(MenuItem);
+                _unitOfWork.Save();
+              
+
             }
 
             
