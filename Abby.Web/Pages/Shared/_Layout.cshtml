@@ -25,19 +25,21 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Index">Home</a>
                         </li>
-                     
+
 
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Admin</a>
                             <div class="dropdown-menu">
-                              <a class="dropdown-item" asp-area="" asp-page="/Admin/Categories/Index">Categories</a>
-                              <a class="dropdown-item" asp-area="" asp-page="/Admin/FoodTypes/Index">Food Type</a>
-                      <a class="dropdown-item" asp-area="" asp-page="/Admin/MenuItems/Index">Menu Items</a>
-                     
+                                <a class="dropdown-item" asp-area="" asp-page="/Admin/Categories/Index">Categories</a>
+                                <a class="dropdown-item" asp-area="" asp-page="/Admin/FoodTypes/Index">Food Type</a>
+                                <a class="dropdown-item" asp-area="" asp-page="/Admin/MenuItems/Index">Menu Items</a>
                                 <div class="dropdown-divider"></div>
                             </div>
                         </li>
+
+                        
                     </ul>
+                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
@@ -61,7 +63,7 @@
     <script src="//cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-   
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
