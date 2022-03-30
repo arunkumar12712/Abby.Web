@@ -4,6 +4,8 @@ using Abby.DataAccess.Repository;
 using Abby.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Abby.Utility;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,10 +14,11 @@ builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
     ));
-builder.Services.AddDefaultIdentity<IdentityUser>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 //builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //    options.UseSqlServer(connectionString));
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 var app = builder.Build();
 
