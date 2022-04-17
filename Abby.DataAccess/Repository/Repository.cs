@@ -17,6 +17,7 @@ namespace Abby.DataAccess.Repository
         public Repository(ApplicationDbContext db)
         {
             _db = db;
+            //_db.ShoppingCard.Include(u => u.MenuItem).ThenInclude(u => u.Category);
             this.dbSet = db.Set<T>();
         }
 
