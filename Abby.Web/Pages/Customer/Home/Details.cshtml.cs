@@ -1,11 +1,14 @@
 using Abby.DataAccess.Repository.IRepository;
 using Abby.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace Abby.Web.Pages.Customer.Home
 {
+    [Authorize]
     public class DetailsModel : PageModel
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -14,13 +17,45 @@ namespace Abby.Web.Pages.Customer.Home
             _unitOfWork = unitOfWork;
         }
 
-        public MenuItem MenuItem { get; set; }
-        [Range(1, 100, ErrorMessage = "Please select a count between 1 and 100")]
-        public int Count { get; set; }
+        [BindProperty]
+        public ShoppingCard ShoppingCard { get; set; }
+       
 
         public void OnGet(int id)
         {
-            MenuItem = _unitOfWork.MenuItem.GetFirstOrDefault(u => u.Id == id, includeProperties: "Category,FoodType");
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            ShoppingCard = new ShoppingCard
+            {
+                 ApplicationUserId = claim.Value,
+                 MenuItem = _unitOfWork.MenuItem.GetFirstOrDefault(u => u.Id == id, includeProperties: "Category,FoodType"),
+                 MenuItemId = id            
+            };
+        }
+
+        public IActionResult OnPost()
+        {
+            if (ModelState.IsValid)
+            {
+                 ShoppingCard shoppingCardFromDb = _unitOfWork.ShoppingCard.GetFirstOrDefault(
+                    filter: u => u.ApplicationUserId == ShoppingCard.ApplicationUserId &&
+                     u.MenuItemId == ShoppingCard.MenuItemId
+                    );
+                
+                if (shoppingCardFromDb == null)
+                {
+                    _unitOfWork.ShoppingCard.Add(ShoppingCard);
+                    _unitOfWork.Save();
+                }
+                else
+                {
+                    _unitOfWork.ShoppingCard.IncrementCount(shoppingCardFromDb, ShoppingCard.Count);
+                }
+
+                return RedirectToPage("Index");
+            }
+            return Page();
+
         }
     }
 }

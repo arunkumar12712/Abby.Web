@@ -10,7 +10,8 @@ namespace Abby.DataAccess.Repository.IRepository
     {
         ICategoryRepository Category { get; }
         IFoodTypeRepository FoodType { get; }
-        IMenuItemRepository MenuItem { get; }   
+        IMenuItemRepository MenuItem { get; }
+        IShoppingCardRepository ShoppingCard { get; }
         void Save();
 
     }
