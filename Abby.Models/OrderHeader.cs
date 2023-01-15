@@ -44,8 +44,10 @@ namespace Abby.Models
 		public string? TransactionId { get; set; }
 
 		[Display(Name = "Pickup Name")]
+		[Required]
 		public string PickupName { get; set; }
 		[Display(Name = "Phone Number")]
+		[Required]
 		public string PhoneNumber { get; set; }
 	}
 }
