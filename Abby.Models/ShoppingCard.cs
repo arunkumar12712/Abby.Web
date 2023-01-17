@@ -11,6 +11,10 @@ namespace Abby.Models
 {
     public class ShoppingCard
     {
+		public ShoppingCard()
+		{
+			Count = 1;
+		}
 		public int Id { get; set; }
 		public int MenuItemId { get; set; }
 		[ForeignKey("MenuItemId")]

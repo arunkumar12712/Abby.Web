@@ -1,9 +1,11 @@
 using Abby.DataAccess.Repository.IRepository;
 using Abby.Models;
 using Abby.Utility;
+using Duende.IdentityServer.Endpoints.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Stripe.Checkout;
 using System.Security.Claims;
 
 namespace Abby.Web.Pages.Customer.Cart
@@ -43,7 +45,7 @@ namespace Abby.Web.Pages.Customer.Cart
         }
 
 
-		public void OnPost()
+		public IActionResult OnPost()
 		{
 			var claimsIdentity = (ClaimsIdentity)User.Identity;
 			var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
@@ -77,10 +79,57 @@ namespace Abby.Web.Pages.Customer.Cart
 					};
 
 				}
-
-				_unitOfWork.ShoppingCard.RemoveRange(ShoppingCartList);
+				
+				//_unitOfWork.ShoppingCard.RemoveRange(ShoppingCartList);
 				_unitOfWork.Save();
+
+				var domain = "https://localhost:7242/";
+				var options = new SessionCreateOptions
+				{
+					LineItems = new List<SessionLineItemOptions>(),
+					PaymentMethodTypes = new List<string>
+					{
+						"card"
+					},
+					Mode = "payment",
+					SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={OrderHeader.Id}",
+					CancelUrl = domain + "customer/cart/index",
+				};
+
+
+				//add line items
+				foreach (var item in ShoppingCartList)
+				{
+					var sessionLineItem = new SessionLineItemOptions
+					{
+						PriceData = new SessionLineItemPriceDataOptions
+						{
+							//7.99->799
+							UnitAmount = (long)(item.MenuItem.Price * 100),
+							Currency = "usd",
+							ProductData = new SessionLineItemPriceDataProductDataOptions
+							{
+								Name = item.MenuItem.Name
+							},
+						},
+						Quantity = item.Count
+					};
+					options.LineItems.Add(sessionLineItem);
+				}
+
+
+				var service = new SessionService();
+				Session session = service.Create(options);
+				OrderHeader.SessionId = session.Id;
+				OrderHeader.PaymentIntentId = session.PaymentIntentId;
+				Response.Headers.Add("Location", session.Url);
+				_unitOfWork.Save();
+				return new Microsoft.AspNetCore.Mvc.StatusCodeResult(303);
+
 			}
+
+
+			return Page();
 		}
 	}
 }
