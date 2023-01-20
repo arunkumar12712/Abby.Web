@@ -1,8 +1,10 @@
 ﻿using Abby.DataAccess.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Abby.Web.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class MenuItemController : Controller
@@ -36,8 +38,10 @@ namespace Abby.Web.Controllers
 
             _unitOfWork.MenuItem.Remove(objFromDb);
             _unitOfWork.Save();
-             return Json(new { success = true, message="Delete successfuly" });
+            return Json(new { success = true, message = "Delete successfuly" });
 
         }
     }
+
+
 }

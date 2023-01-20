@@ -1,7 +1,6 @@
 using Abby.DataAccess.Repository.IRepository;
 using Abby.Models;
 using Abby.Utility;
-using Duende.IdentityServer.Endpoints.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,7 +10,7 @@ using System.Security.Claims;
 namespace Abby.Web.Pages.Customer.Cart
 {
     [Authorize]
-	[BindProperties]
+    [BindProperties]
     public class SummaryModel : PageModel
     {
 
@@ -21,8 +20,8 @@ namespace Abby.Web.Pages.Customer.Cart
         public SummaryModel(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            OrderHeader= new OrderHeader();
-            
+            OrderHeader = new OrderHeader();
+
         }
         public void OnGet()
         {
@@ -38,98 +37,98 @@ namespace Abby.Web.Pages.Customer.Cart
                     OrderHeader.OrderTotal += (cartItem.MenuItem.Price * cartItem.Count);
                 }
 
-                ApplicationUser applicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(t=>t.Id ==claim.Value);
-                OrderHeader.PickupName = applicationUser.FirstName + " "+ applicationUser.LastName;
-                OrderHeader.PhoneNumber = applicationUser.PhoneNumber;  
+                ApplicationUser applicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(t => t.Id == claim.Value);
+                OrderHeader.PickupName = applicationUser.FirstName + " " + applicationUser.LastName;
+                OrderHeader.PhoneNumber = applicationUser.PhoneNumber;
             }
         }
 
 
-		public IActionResult OnPost()
-		{
-			var claimsIdentity = (ClaimsIdentity)User.Identity;
-			var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-			if (claim != null)
-			{
-				ShoppingCartList = _unitOfWork.ShoppingCard.GetAll(filter: u => u.ApplicationUserId == claim.Value
-				, includeProperties: "MenuItem,MenuItem.FoodType,MenuItem.Category");
+        public IActionResult OnPost()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            if (claim != null)
+            {
+                ShoppingCartList = _unitOfWork.ShoppingCard.GetAll(filter: u => u.ApplicationUserId == claim.Value
+                , includeProperties: "MenuItem,MenuItem.FoodType,MenuItem.Category");
 
-				foreach (var cartItem in ShoppingCartList)
-				{
-					OrderHeader.OrderTotal += (cartItem.MenuItem.Price * cartItem.Count);
-				}
+                foreach (var cartItem in ShoppingCartList)
+                {
+                    OrderHeader.OrderTotal += (cartItem.MenuItem.Price * cartItem.Count);
+                }
 
-				OrderHeader.Status = SD.StatusPending;
-				OrderHeader.OrderDate = System.DateTime.Now;
-				OrderHeader.UserId = claim.Value;
-				OrderHeader.PickUpTime = Convert.ToDateTime(OrderHeader.PickUpDate.ToShortDateString() + " " +
-					OrderHeader.PickUpTime.ToShortTimeString());
-				_unitOfWork.OrderHeader.Add(OrderHeader);
-				_unitOfWork.Save();
+                OrderHeader.Status = SD.StatusPending;
+                OrderHeader.OrderDate = System.DateTime.Now;
+                OrderHeader.UserId = claim.Value;
+                OrderHeader.PickUpTime = Convert.ToDateTime(OrderHeader.PickUpDate.ToShortDateString() + " " +
+                    OrderHeader.PickUpTime.ToShortTimeString());
+                _unitOfWork.OrderHeader.Add(OrderHeader);
+                _unitOfWork.Save();
 
-				foreach (var item in ShoppingCartList)
-				{
-					OrderDetails orderDetails = new()
-					{
-						MenuItemId = item.MenuItemId,
-						OrderId = OrderHeader.Id,
-						Name = item.MenuItem.Name,
-						Price = item.MenuItem.Price,
-						Count = item.Count
-					};
+                foreach (var item in ShoppingCartList)
+                {
+                    OrderDetails orderDetails = new()
+                    {
+                        MenuItemId = item.MenuItemId,
+                        OrderId = OrderHeader.Id,
+                        Name = item.MenuItem.Name,
+                        Price = item.MenuItem.Price,
+                        Count = item.Count
+                    };
+                    _unitOfWork.OrderDetail.Add(orderDetails);
+                }
 
-				}
-				
-				//_unitOfWork.ShoppingCard.RemoveRange(ShoppingCartList);
-				_unitOfWork.Save();
+                //_unitOfWork.ShoppingCard.RemoveRange(ShoppingCartList);
+                _unitOfWork.Save();
 
-				var domain = "https://localhost:7242/";
-				var options = new SessionCreateOptions
-				{
-					LineItems = new List<SessionLineItemOptions>(),
-					PaymentMethodTypes = new List<string>
-					{
-						"card"
-					},
-					Mode = "payment",
-					SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={OrderHeader.Id}",
-					CancelUrl = domain + "customer/cart/index",
-				};
-
-
-				//add line items
-				foreach (var item in ShoppingCartList)
-				{
-					var sessionLineItem = new SessionLineItemOptions
-					{
-						PriceData = new SessionLineItemPriceDataOptions
-						{
-							//7.99->799
-							UnitAmount = (long)(item.MenuItem.Price * 100),
-							Currency = "usd",
-							ProductData = new SessionLineItemPriceDataProductDataOptions
-							{
-								Name = item.MenuItem.Name
-							},
-						},
-						Quantity = item.Count
-					};
-					options.LineItems.Add(sessionLineItem);
-				}
+                var domain = "https://localhost:7242/";
+                var options = new SessionCreateOptions
+                {
+                    LineItems = new List<SessionLineItemOptions>(),
+                    PaymentMethodTypes = new List<string>
+                    {
+                        "card"
+                    },
+                    Mode = "payment",
+                    SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={OrderHeader.Id}",
+                    CancelUrl = domain + "customer/cart/index",
+                };
 
 
-				var service = new SessionService();
-				Session session = service.Create(options);
-				OrderHeader.SessionId = session.Id;
-				OrderHeader.PaymentIntentId = session.PaymentIntentId;
-				Response.Headers.Add("Location", session.Url);
-				_unitOfWork.Save();
-				return new Microsoft.AspNetCore.Mvc.StatusCodeResult(303);
+                //add line items
+                foreach (var item in ShoppingCartList)
+                {
+                    var sessionLineItem = new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            //7.99->799
+                            UnitAmount = (long)(item.MenuItem.Price * 100),
+                            Currency = "usd",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = item.MenuItem.Name
+                            },
+                        },
+                        Quantity = item.Count
+                    };
+                    options.LineItems.Add(sessionLineItem);
+                }
 
-			}
+
+                var service = new SessionService();
+                Session session = service.Create(options);
+                OrderHeader.SessionId = session.Id;
+                OrderHeader.PaymentIntentId = session.PaymentIntentId;
+                Response.Headers.Add("Location", session.Url);
+                _unitOfWork.Save();
+                return new Microsoft.AspNetCore.Mvc.StatusCodeResult(303);
+
+            }
 
 
-			return Page();
-		}
-	}
+            return Page();
+        }
+    }
 }
