@@ -1,5 +1,6 @@
 using Abby.DataAccess.Repository.IRepository;
 using Abby.Models;
+using Abby.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -46,6 +47,9 @@ namespace Abby.Web.Pages.Customer.Home
                 {
                     _unitOfWork.ShoppingCard.Add(ShoppingCard);
                     _unitOfWork.Save();
+                    HttpContext.Session.SetInt32(SD.SessionCart,
+                        _unitOfWork.ShoppingCard.GetAll(u => u.ApplicationUserId == ShoppingCard.ApplicationUserId).ToList().Count);
+
                 }
                 else
                 {
